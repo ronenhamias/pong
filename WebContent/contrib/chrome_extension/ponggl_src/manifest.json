@@ -1,0 +1,13 @@
+{
+	"name"		: "PongGL",
+	"description"	: "Play Pong in 3D",
+	"version"	: "1.0.0",
+	"app"		: {
+		"launch": {
+			"web_url": "http://jeromeetienne.github.com/pongGL/"
+		}
+	},
+	"icons"	: {
+		"128": "smiley128.png"
+	}
+}
