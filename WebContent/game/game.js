@@ -3,6 +3,7 @@ function Game(){
     sound = new Sound();
     world = new World();
 	ball = new Ball(world);
+	referee = new Referee(world,ball);
 	
 	/////////////////////////////////////////////////////////////////////////
 	// init fireworks.js particles
@@ -10,26 +11,7 @@ function Game(){
 	tQuery(smokepuff.object3D()).addTo(world).scale(1/10);
 	smokepuff.sound().volume(0.3);
 
-	/////////////////////////////////////////////////////////////////////////
-	// add the referee
-	character	= new tQuery.MinecraftChar({
-		skinUrl	: "images/agentsmith.png"
-	});
-	character.model.scaleBy(2.5/4).translateY(+0.1).translateZ(-1).addTo(world);
-	// setup the limbs positions
-	character.parts.legL.rotation.z = +Math.PI/16;
-	character.parts.legR.rotation.z = -Math.PI/16;
-	character.parts.armL.rotation.x = -Math.PI/8;
-	character.parts.armR.rotation.x = -Math.PI/8;
-	// make the head follow the ball
-	character.parts.headGroup.matrixAutoUpdate = false;
-	character.parts.headGroup.updateMatrix();
-	world.loop().hook(function(delta, now){
-		charPosition= character.model.get(0).position;
-		target	= ball.position.clone().subSelf(charPosition);
-		character.parts.headGroup.lookAt(target);
-	}); 
-    
+	
 
 	// create the ground
 	tQuery.createCube(1,0.2,1, 3,3,3).addTo(world)
