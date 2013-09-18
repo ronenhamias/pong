@@ -2,6 +2,8 @@
 function Server(address){
    this.socket; 
    
+   this.gameSession;
+   
    this.connect = function (){
 		this.socket = io.connect('http://' + address, {
        	'transports' : [ 'websocket', 'xhr-polling' ],
@@ -22,9 +24,13 @@ function Server(address){
 		});
    };
    
-    this.moveRacket = function(playerId,max,min){
+   this.startGame = function(playerId){
+	   
+   };
+   
+   this.moveRacket = function(playerId,max,min){
     	var data= {playerId: playerId ,max:max  ,min:min};
-    	this.socket.send('{"qualifier":"pt.openapi.pubsub/publish/1.0","topic":"pingpong.raket.'+data.playerId+'","data":'+JSON.stringify( data)+'}');
-    };
-	return this;
+    	this.socket.send('{"qualifier":"pt.openapi.pubsub/publish/1.0","topic":"pingpong.raket.'+this.gameSession+'.'+data.playerId+'","data":'+JSON.stringify( data)+'}');
+   };
+   return this;
 };

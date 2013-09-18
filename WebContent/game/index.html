@@ -90,8 +90,9 @@
 	var world	= tQuery.createWorld().boilerplate().start();
 	// no camera controls is needed
 	world.removeCameraControls();
-	world.tCamera().position.y	= 5.5;
-	world.tCamera().position.z	= 10.2;
+	world.tCamera().position.y	= 1.5;
+	world.tCamera().position.z	= 1.2;
+	world.tCamera().position.x	= 5.1;
 	world.tCamera().position.normalize().setLength(3.5);
 	world.tCamera().lookAt(world.tScene().position);
 	
@@ -142,7 +143,7 @@
 		.geometry().smooth(2).back()
 		.scale(3*1.5, 1, 1.8*1.5)
 		.translateY(-0.2-0.1)
-		.setLambertMaterial().map('images/13663tennis_court_grass.jpg').ambient(0x444444).back()
+		.setLambertMaterial().map('images/01149-Blue-Skull.jpg').ambient(0x444444).back()
 
 	// lights
 	tQuery.createAmbientLight().addTo(world).color(0x444444)
@@ -163,7 +164,7 @@
 	Object.keys(players).forEach(function(playerId){
 		var player	= players[playerId];
 		// create tQuery.Object3D for a racket
-		var url		= "images/plywood.jpg";
+		var url		= "images/net-background.jpg";
 		var playerColor	= playerId === 'right' ? 0xF04040 : 0x1c58e0;
 		var object3d	= tQuery.createCube(1,1,1,2,2,2).addTo(world)
 				.geometry().scaleBy(racketW, 0.2, racketD).back()
@@ -316,7 +317,7 @@
 			.setLambertMaterial()
 				.color(0xFFFF00)
 				.ambient(0xFFFFFF)
-				.map("images/plywood.jpg")
+				.map("images/green_bubbles-wide.jpg")
 				.back()
 			.castShadow(true)
 	world.loop().hook(function(delta, now){
