@@ -22,12 +22,19 @@ function Game(){
 		controls	= {
 			upR	: keyboard.pressed('up'),
 			downR	: keyboard.pressed('down'),
-			upL	: keyboard.pressed('q'),
+			leftR   : keyboard.pressed('left'),
+			rightR   : keyboard.pressed('right'),
+			upL	: keyboard.pressed('q')|| keyboard.pressed('e'),
 			downL	: keyboard.pressed('w') || keyboard.pressed('a'),
 		};
 	
 		if( controls.upR )	players['right'].object3d.translateZ(-delta*speedY);
 		if( controls.downR )	players['right'].object3d.translateZ(+delta*speedY);
+		
+		if( controls.leftR )	players['right'].object3d.translateZ(+delta*speedY);
+		if( controls.rightR )	players['right'].object3d.translateZ(-delta*speedY);
+		
+		
 		if( controls.upL )	players['left'].object3d.translateZ(-delta*speedY);
 		if( controls.downL )	players['left'] .object3d.translateZ(+delta*speedY);
 		// handle racket limit
