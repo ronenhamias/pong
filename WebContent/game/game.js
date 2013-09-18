@@ -1,9 +1,14 @@
 
 function Game(){
+	// constant for the field
+	fieldW	= 4;
+	fieldD	= 1.8;
+	
     sound = new Sound();
     world = new World();
 	ball = new Ball(world);
 	referee = new Referee(world,ball);
+	walls = new Walls(world,sound,fieldW);
 	
 	/////////////////////////////////////////////////////////////////////////
 	// init fireworks.js particles
@@ -13,45 +18,6 @@ function Game(){
 	arena = new Arena(world);
 	players = new Players(world);
 	
-	
-	
-	// handle player keyboard
-	world.loop().hook(function(delta){
-		keyboard	= tQuery.keyboard();
-		speedY	= 2 * (60*delta);
-		controls	= {
-			upR	: keyboard.pressed('up'),
-			downR	: keyboard.pressed('down'),
-			leftR   : keyboard.pressed('left'),
-			rightR   : keyboard.pressed('right'),
-			upL	: keyboard.pressed('q')|| keyboard.pressed('e'),
-			downL	: keyboard.pressed('w') || keyboard.pressed('a'),
-		};
-	
-		if( controls.upR )	players['right'].object3d.translateZ(-delta*speedY);
-		if( controls.downR )	players['right'].object3d.translateZ(+delta*speedY);
-		
-		if( controls.leftR )	players['right'].object3d.translateZ(+delta*speedY);
-		if( controls.rightR )	players['right'].object3d.translateZ(-delta*speedY);
-		
-		
-		if( controls.upL )	players['left'].object3d.translateZ(-delta*speedY);
-		if( controls.downL )	players['left'] .object3d.translateZ(+delta*speedY);
-		// handle racket limit
-		Object.keys(players).forEach(function(playerId){
-			
-			tMesh	= players[playerId].object3d.get(0);
-			tMesh.position.z= Math.max(tMesh.position.z, -fieldD/2 + racketD/2);
-			tMesh.position.z= Math.min(tMesh.position.z, +fieldD/2 - racketD/2);
-			
-			max = Math.min(tMesh.position.z, -fieldD/2 + racketD/2);
-			min = Math.max(tMesh.position.z, -fieldD/2 + racketD/2);
-			
-			server.moveRacket(playerId ,max  ,min );
-		});
-		
-	});
-
 	/**
 	 * Function called when the ball touch the racket
 	*/
@@ -65,37 +31,8 @@ function Game(){
 		smokepuff.emitter().effect('position').opts.shape.position.copy(playerPos);
 		smokepuff.emitter().intensity(fxIntensity);
 		smokepuff.shoot();
-
-		// tween the scale
-		delayFwd	= 150+50*fxIntensity;
-		delayBack	= 175+75*fxIntensity;
-		/*tQuery.createTween({
-			scale	: 1
-		}).easing(TWEEN.Easing.Bounce.Out).to({
-			scale	: 1+fxIntensity*1
-		}, delayFwd).onUpdate(function(){
-			player.object3d.scale(scale, scale, scale);
-		}).start().thenBounce(delayBack).easing(TWEEN.Easing.Elastic.In).back();
-       
-		// tween the positionZ/rotationZ
-		tQuery.createTween({ 
-			positionZ	: 0,
-			rotationZ	: 0
-		}).easing(TWEEN.Easing.Quintic.Out).to({
-			positionZ	: 0.05 + fxIntensity*0.15,
-			rotationZ	: Math.PI/(8-5*fxIntensity)
-		}, delayFwd).onUpdate(function(){
-			playerId	= player.playerId;
-			tObject3d	= player.object3d.get(0);
-			positionZ	= playerId === 'right' ? +positionZ : -positionZ;
-			tObject3d.position.x	= positionZ + (1.3 * (playerId === "right" ? +1 : -1));
-			rotationZ	= playerId === 'right' ? -rotationZ : +rotationZ;
-			tObject3d.rotation.z	= rotationZ;
-		}).start().thenBounce(delayBack).easing(TWEEN.Easing.Sinusoidal.InOut).back();
-		 */
 		
 		ball.computeBall();
-		
 		// compute where in the racket the ball is contacting
 		playerPos	= player.object3d.get(0).position;
 		delta	= (playerPos.z - ball.position.z) / (racketD+ball.ballRadius*2) * 2;
@@ -108,11 +45,8 @@ function Game(){
 		ball.ballVelZ	= Math.sin(ball.ballAngle)*ball.ballSpeed;			
 	};
 
-	// constant for the field
-	fieldW	= 4;
-	fieldD	= 1.8;
 	
-	
+
 	world.loop().hook(function(delta, now){
 		// get ball position
 		position	= ball.position;
@@ -170,36 +104,6 @@ function Game(){
 			}
 		});
 	});
-
-	//////////////////////////////////////////////////////////////////////////
-	//		Walls							//
-	//////////////////////////////////////////////////////////////////////////
-	walls	= {};
-	url		= "images/plywood.jpg";
-	walls['north']	= tQuery.createCylinder(0.05, 0.05, fieldW, 16, 4).addTo(world)
-		.setLambertMaterial().color(0xFFFFFF).ambient(0xFFFFFF).map(url).back()
-		.geometry().rotateZ(Math.PI/2).back()
-		.translateY(-0.1)
-		.translateZ(-1.8/2 - 0.05/2)
-		.castShadow(true);
-	walls['south']	= tQuery.createCylinder(0.05, 0.05, fieldW, 16, 4).addTo(world)
-		.setLambertMaterial().color(0xFFFFFF).ambient(0xFFFFFF).map(url).back()
-		.geometry().rotateZ(Math.PI/2).back()
-		.translateY(-0.1)
-		.translateZ(+1.8/2 + 0.05/2)
-		.castShadow(true);
-		
-	wallOnContact = function (object){
-		sound.playWallSound();
-
-		/* tween the scale
-		tQuery.createTween({
-			scale	: 1
-		}).easing(TWEEN.Easing.Elastic.Out).to({
-			scale	: 2
-		}, 300).onUpdate(function(){
-			object.scale(1, scale, scale);
-		}).start().thenBounce(200).easing(TWEEN.Easing.Linear.None).back();
-		*/
-	};
+	
+	
 };

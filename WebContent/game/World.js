@@ -20,5 +20,8 @@ function World(){
 
 	// enable tween updater	
 	world.enableTweenUpdater();
+	
+	
+	
 	return world;
 };
