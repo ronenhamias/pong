@@ -54,8 +54,16 @@ function Players(server,world){
 			downL	: keyboard.pressed('w') || keyboard.pressed('a'),
 		};
 	
-		if( controls.upR )	    players['right'].object3d.translateZ(-delta*speedY);
-		if( controls.downR )	players['right'].object3d.translateZ(+delta*speedY);
+		if( controls.upR ){
+			pos = -delta*speedY;
+			players['right'].object3d.translateZ(pos);
+			server.moveRacket("right",pos);
+		}
+		if( controls.downR ){
+			pos = +delta*speedY;
+			players['right'].object3d.translateZ(pos);
+			server.moveRacket("right",pos);
+		}
 		
 		if( controls.leftR ){	
 			pos = +delta*speedY;
@@ -75,7 +83,7 @@ function Players(server,world){
 		}
 		if( controls.downL ){
 			pos = +delta*speedY;
-			players['left'] .object3d.translateZ(+delta*speedY);
+			players['left'] .object3d.translateZ(pos);
 			server.moveRacket("left",pos);
 		}
 		// handle racket limit
@@ -94,7 +102,7 @@ function Players(server,world){
 	server.on("onOpponentRacketMove",function(playerId,pos){
 		if(playerId=="left")
 			players['left'] .object3d.translateZ(pos);
-		else{
+		if(playerId=="right"){
 			players['right'] .object3d.translateZ(pos);
 		}
 	});

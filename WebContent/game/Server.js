@@ -6,7 +6,8 @@ function Server(address){
    
    actions	= { 
 		        "startGame" : { callback : {} },
-		        "onOpponentRacketMove" : { callback : {} }
+		        "onOpponentRacketMove" : { callback : {} },
+		        "onOpponentBallMove" : { callback : {} }
               };	
    
    Server.prototype.on = function (id,callback) {
@@ -28,17 +29,19 @@ function Server(address){
 
 	// Add a message listener
    socket.on('message', function(data) {
+	   console.log(data);
 		json = JSON.parse(data);
 		if(json.qualifier === "com.pt.openapi.pingpong.game/start"){
 			Server.gameSession =json.data.gameSession;
 			Server.playerId = json.data.playerId;
 			actions["startGame"].callback(Server.gameSession,Server.playerId);
-			
 			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
 			socket.send(msg);
 		}else if(json.qualifier=="com.pt.pingpong.game/racket"){
 			if(json.data.playerId!=Server.prototype.playerId)
 			actions["onOpponentRacketMove"].callback(json.data.playerId,json.data.pos);
+		}else if(json.qualifier=="com.pt.pingpong.game/ball"){
+			actions["onOpponentBallMove"].callback(json.data.playerId,json.data.pos,json.data.index);
 		}
 	});
 
@@ -50,12 +53,19 @@ function Server(address){
    socket.on('disconnect', function() {});
  
    Server.prototype.moveRacket = function(Id,pos){
-	   console.log(Id  );
-	   if(Server.playerId== Id){
+	   //if(Server.playerId== Id){
     	 var data= {playerId: Id ,pos:pos};
     	 msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/racket","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
     	 socket.send(msg);
-	   }
+	   //}
+   };
+   
+   Server.prototype.moveball = function(Id,pos,i){
+	   //if(playerId!=Server.playerId){
+    	 var data= {playerId: Id ,pos:pos, index : i};
+    	 msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/ball","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+    	 socket.send(msg);
+	   //}
    };
    
    return this;

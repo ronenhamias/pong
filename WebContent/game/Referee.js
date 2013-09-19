@@ -17,7 +17,7 @@ function Referee(world,ball){
 	character.parts.headGroup.updateMatrix();
 	world.loop().hook(function(delta, now){
 		charPosition= character.model.get(0).position;
-		target	= ball.position.clone().subSelf(charPosition);
+		target	= ball.ball3d.get(0).position.clone().subSelf(charPosition);
 		character.parts.headGroup.lookAt(target);
 	}); 
     

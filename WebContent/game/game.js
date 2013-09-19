@@ -7,7 +7,7 @@ function Game(server,gameSession,currentPlayerId){
 	
     sound = new Sound();
     world = new World();
-	ball = new Ball(world);
+	ball = new Ball(server,world);
 	referee = new Referee(world,ball);
 	walls = new Walls(world,sound,fieldW);
 	arena = new Arena(world);
@@ -36,7 +36,7 @@ function Game(server,gameSession,currentPlayerId){
 		ball.computeBall();
 		// compute where in the racket the ball is contacting
 		playerPos	= player.object3d.get(0).position;
-		delta	= (playerPos.z - ball.position.z) / (racketD+ball.ballRadius*2) * 2;
+		delta	= (playerPos.z - ball.ball3d.get(0).position.z) / (racketD+ball.ballRadius*2) * 2;
 		// compute the angle delta based on contact position on racket
 		maxDeltaAng	= 30 * Math.PI/180;
 		deltaAngle	= delta * maxDeltaAng;
@@ -50,7 +50,7 @@ function Game(server,gameSession,currentPlayerId){
 
 	world.loop().hook(function(delta, now){
 		// get ball position
-		position	= ball.position;
+		position	= ball.ball3d.get(0).position;
 		ball.updatePosition(delta);
 		ballRadius=ball.ballRadius;
 		// handle border contact
