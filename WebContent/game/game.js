@@ -1,5 +1,6 @@
 
-function Game(){
+function Game(gameSession,currentPlayerId){
+	
 	// constant for the field
 	fieldW	= 4;
 	fieldD	= 1.8;
@@ -9,14 +10,14 @@ function Game(){
 	ball = new Ball(world);
 	referee = new Referee(world,ball);
 	walls = new Walls(world,sound,fieldW);
+	arena = new Arena(world);
+	players = new Players(world);
 	
 	/////////////////////////////////////////////////////////////////////////
 	// init fireworks.js particles
 	smokepuff	= new Fireworks.ComboEmitter.Smokepuff();
 	tQuery(smokepuff.object3D()).addTo(world).scale(1/10);
 	smokepuff.sound().volume(0.3);
-	arena = new Arena(world);
-	players = new Players(world);
 	
 	/**
 	 * Function called when the ball touch the racket

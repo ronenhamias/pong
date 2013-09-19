@@ -78,10 +78,12 @@
 	<div id="scoreLeft"	class="score">0</div>
 	<div id="scoreRight"	class="score">0</div>
 <script>
-    var server = new Server("194.105.145.110:4810");
-    server.connect();
-    
-    game = new Game();
+    var server = new Server("localhost:4810");
+    server.on("startGame",function(gameSession,playerId){
+    	alert("start");
+    	game = new Game(gameSession,playerId);
+    	game.server = server; 	
+    });
    
     
 	
