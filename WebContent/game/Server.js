@@ -39,7 +39,7 @@ function Server(address){
 			socket.send(msg);
 		}else if(json.qualifier=="com.pt.pingpong.game/racket"){
 			if(json.data.playerId!=Server.prototype.playerId)
-			actions["onOpponentRacketMove"].callback(json.data.playerId,json.data.pos);
+			actions["onOpponentRacketMove"].callback(json.data.playerId,json.data.pos,json.data.index);
 		}else if(json.qualifier=="com.pt.pingpong.game/ball"){
 			actions["onOpponentBallMove"].callback(json.data.playerId,json.data.pos,json.data.index);
 		}
@@ -52,9 +52,9 @@ function Server(address){
 	// Add a disconnect listener
    socket.on('disconnect', function() {});
  
-   Server.prototype.moveRacket = function(Id,pos){
+   Server.prototype.moveRacket = function(Id,pos,i){
 	   //if(Server.playerId== Id){
-    	 var data= {playerId: Id ,pos:pos};
+    	 var data= {playerId: Id ,pos:pos,index:i};
     	 msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/racket","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
     	 socket.send(msg);
 	   //}

@@ -78,7 +78,7 @@
 	<div id="scoreLeft"	class="score">0</div>
 	<div id="scoreRight"	class="score">0</div>
 <script>
-    var server = new Server("localhost:4810");
+    var server = new Server("192.168.2.109:4810");
     server.on("startGame",function(gameSession,playerId){
     	game = new Game(server,gameSession,playerId);
     });

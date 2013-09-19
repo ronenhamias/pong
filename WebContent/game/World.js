@@ -14,7 +14,7 @@ function World(){
 	    world.tCamera().position.z	= 18.2;
 	   world.tCamera().position.x	= -125;
 	}
-	world.tCamera().position.normalize().setLength(3);
+	world.tCamera().position.normalize().setLength(3.2);
 	world.tCamera().lookAt(world.tScene().position);
 	
 	// add a blue sky

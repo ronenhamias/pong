@@ -3,7 +3,7 @@ function Walls(world,sound,fieldW){
 	//		Walls							//
 	//////////////////////////////////////////////////////////////////////////
 	walls	= {};
-	url		= "images/plywood.jpg";
+	url		= "images/hazard.jpg";
 	walls['north']	= tQuery.createCylinder(0.05, 0.05, fieldW, 16, 4).addTo(world)
 		.setLambertMaterial().color(0xFFFFFF).ambient(0xFFFFFF).map(url).back()
 		.geometry().rotateZ(Math.PI/2).back()

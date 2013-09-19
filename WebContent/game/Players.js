@@ -40,7 +40,7 @@ function Players(server,world){
 	// init each player
 	initPlayer('right');
 	initPlayer('left');
-	
+	var i = 0;
 	// handle player keyboard
 	world.loop().hook(function(delta){
 		keyboard	= tQuery.keyboard();
@@ -53,38 +53,39 @@ function Players(server,world){
 			upL	: keyboard.pressed('q')|| keyboard.pressed('e'),
 			downL	: keyboard.pressed('w') || keyboard.pressed('a'),
 		};
-	
+		
+	    ++i;
 		if( controls.upR ){
 			pos = -delta*speedY;
 			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos);
+			server.moveRacket("right",pos,i);
 		}
 		if( controls.downR ){
 			pos = +delta*speedY;
 			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos);
+			server.moveRacket("right",pos,i);
 		}
 		
 		if( controls.leftR ){	
 			pos = +delta*speedY;
 			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos);
+			server.moveRacket("right",pos,i);
 		};
 		if( controls.rightR ){	
 			pos = -delta*speedY;
 			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos);
+			server.moveRacket("right",pos,i);
 		}
 		
 		if( controls.upL )	{
 			pos = -delta*speedY;
 			players['left'].object3d.translateZ(pos);
-			server.moveRacket("left",pos);
+			server.moveRacket("left",pos,i);
 		}
 		if( controls.downL ){
 			pos = +delta*speedY;
 			players['left'] .object3d.translateZ(pos);
-			server.moveRacket("left",pos);
+			server.moveRacket("left",pos,i);
 		}
 		// handle racket limit
 		Object.keys(players).forEach(function(playerId){
@@ -99,7 +100,12 @@ function Players(server,world){
 		});
 		
 	});
-	server.on("onOpponentRacketMove",function(playerId,pos){
+	var index = 0;
+	server.on("onOpponentRacketMove",function(playerId,pos,i){
+		if(index<i){
+			index=i;
+		}else return;
+		
 		if(playerId=="left")
 			players['left'] .object3d.translateZ(pos);
 		if(playerId=="right"){

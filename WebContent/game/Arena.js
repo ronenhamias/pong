@@ -5,7 +5,7 @@ function Arena(world){
 		.geometry().smooth(2).back()
 		.scale(3*1.5, 1, 1.8*1.5)
 		.translateY(-0.2-0.1)
-		.setLambertMaterial().map('images/13663tennis_court_grass.jpg').ambient(0x444444).back();
+		.setLambertMaterial().map('images/ground.png').ambient(0x444444).back();
 
 	// lights
 	tQuery.createAmbientLight().addTo(world).color(0x444444);
