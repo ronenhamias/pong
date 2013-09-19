@@ -80,9 +80,7 @@
 <script>
     var server = new Server("localhost:4810");
     server.on("startGame",function(gameSession,playerId){
-    	alert("start");
-    	game = new Game(gameSession,playerId);
-    	game.server = server; 	
+    	game = new Game(server,gameSession,playerId);
     });
    
     

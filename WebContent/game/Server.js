@@ -1,10 +1,13 @@
 
 function Server(address){
  
-   var gameSession;
-   var playerId;
+   Server.prototype.gameSession;
+   Server.prototype.playerId;
    
-   actions	= { "startGame" : { callback : {} } };	
+   actions	= { 
+		        "startGame" : { callback : {} },
+		        "onOpponentRacketMove" : { callback : {} }
+              };	
    
    Server.prototype.on = function (id,callback) {
 	   actions[id].callback = callback;
@@ -27,9 +30,15 @@ function Server(address){
    socket.on('message', function(data) {
 		json = JSON.parse(data);
 		if(json.qualifier === "com.pt.openapi.pingpong.game/start"){
-			this.gameSession =json.data.gameSession;
-			this.playerId = json.data.playerId;
-			actions["startGame"].callback(this.gameSession,this.playerId);
+			Server.gameSession =json.data.gameSession;
+			Server.playerId = json.data.playerId;
+			actions["startGame"].callback(Server.gameSession,Server.playerId);
+			
+			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
+			socket.send(msg);
+		}else if(json.qualifier=="com.pt.pingpong.game/racket"){
+			if(json.data.playerId!=Server.prototype.playerId)
+			actions["onOpponentRacketMove"].callback(json.data.playerId,json.data.pos);
 		}
 	});
 
@@ -40,11 +49,14 @@ function Server(address){
 	// Add a disconnect listener
    socket.on('disconnect', function() {});
  
-   this.moveRacket = function(playerId,max,min){
-    	var data= {playerId: playerId ,max:max  ,min:min};
-    	this.socket.send('{"qualifier":"pt.openapi.pubsub/publish/1.0","topic":"pingpong.raket.'+this.gameSession+'.'+data.playerId+'","data":'+JSON.stringify( data)+'}');
+   Server.prototype.moveRacket = function(Id,pos){
+	   console.log(Id  );
+	   if(Server.playerId== Id){
+    	 var data= {playerId: Id ,pos:pos};
+    	 msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/racket","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+    	 socket.send(msg);
+	   }
    };
-   
    
    return this;
 };

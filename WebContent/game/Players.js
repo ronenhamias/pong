@@ -1,10 +1,11 @@
-function Players(world){
+function Players(server,world){
 
 	// some constants for players
 	players	= { "right" : { playerId : "right" }, "left": { playerId : "left" } };	
 	racketW	= 0.1;
 	racketD	= 0.5;
 	racketRangeY= 2;
+	
 	
 	
 	initPlayer = function(playerId){
@@ -56,11 +57,27 @@ function Players(world){
 		if( controls.upR )	    players['right'].object3d.translateZ(-delta*speedY);
 		if( controls.downR )	players['right'].object3d.translateZ(+delta*speedY);
 		
-		if( controls.leftR )	players['right'].object3d.translateZ(+delta*speedY);
-		if( controls.rightR )	players['right'].object3d.translateZ(-delta*speedY);
+		if( controls.leftR ){	
+			pos = +delta*speedY;
+			players['right'].object3d.translateZ(pos);
+			server.moveRacket("right",pos);
+		};
+		if( controls.rightR ){	
+			pos = -delta*speedY;
+			players['right'].object3d.translateZ(pos);
+			server.moveRacket("right",pos);
+		}
 		
-		if( controls.upL )	players['left'].object3d.translateZ(-delta*speedY);
-		if( controls.downL )	players['left'] .object3d.translateZ(+delta*speedY);
+		if( controls.upL )	{
+			pos = -delta*speedY;
+			players['left'].object3d.translateZ(pos);
+			server.moveRacket("left",pos);
+		}
+		if( controls.downL ){
+			pos = +delta*speedY;
+			players['left'] .object3d.translateZ(+delta*speedY);
+			server.moveRacket("left",pos);
+		}
 		// handle racket limit
 		Object.keys(players).forEach(function(playerId){
 			tMesh	= players[playerId].object3d.get(0);
@@ -69,9 +86,17 @@ function Players(world){
 			
 			max = Math.min(tMesh.position.z, -fieldD/2 + racketD/2);
 			min = Math.max(tMesh.position.z, -fieldD/2 + racketD/2);
+			
+			
 		});
 		
 	});
-	
+	server.on("onOpponentRacketMove",function(playerId,pos){
+		if(playerId=="left")
+			players['left'] .object3d.translateZ(pos);
+		else{
+			players['right'] .object3d.translateZ(pos);
+		}
+	});
 	return players;
 }

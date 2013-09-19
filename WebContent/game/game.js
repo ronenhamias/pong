@@ -1,5 +1,5 @@
 
-function Game(gameSession,currentPlayerId){
+function Game(server,gameSession,currentPlayerId){
 	
 	// constant for the field
 	fieldW	= 4;
@@ -11,7 +11,7 @@ function Game(gameSession,currentPlayerId){
 	referee = new Referee(world,ball);
 	walls = new Walls(world,sound,fieldW);
 	arena = new Arena(world);
-	players = new Players(world);
+	players = new Players(server,world);
 	
 	/////////////////////////////////////////////////////////////////////////
 	// init fireworks.js particles
