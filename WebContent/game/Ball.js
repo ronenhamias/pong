@@ -19,12 +19,14 @@ function Ball(server,world){
 	Ball.ball3d = this.ball3d;
 
 	Ball.prototype.setPosition = function(pos){
+		if(Server.playerId!="left") return;
 		this.ball3d.get(0).position.x = pos.x;
 		this.ball3d.get(0).position.y = pos.y;
 		this.ball3d.get(0).position.z = pos.z;
 	};
-	
+
 	this.reset = function(playerId){
+		if(Server.playerId!="left") return;
 		// reset ball velocity
 		this.ballAngle	= 0.1 * (Math.random()*2-1)*Math.PI*2;
 		this.ballAngle	+= playerId === 'right' ? 0 : Math.PI;
@@ -35,6 +37,7 @@ function Ball(server,world){
 	};
 
 	this.speedIncrease = function(){
+		if(Server.playerId!="left") return;
 		// increase velocity by 5% everytime you connect
 		this.ballVelX 	*= 1.05;
 		this.ballVelZ	*= 1.05;
@@ -49,15 +52,14 @@ function Ball(server,world){
 			server.moveball(Server.playerId,this.ball3d.get(0).position,++i);
 		}
 	};
-	var msgInx = 0;
+	var ballIndex = 0;
 	server.on("onOpponentBallMove",function(playerId,pos,index){
-		if(msgInx<index){
-			msgInx =index;
-		}else{
-			return;
-		}
-			
 		if(Server.playerId=="right"){
+			if(ballIndex<index){
+				ballIndex =index;
+			}else{
+				return;
+			}
 			Ball.ball3d.get(0).position.x =	pos.x;	
 			Ball.ball3d.get(0).position.z =	pos.z;
 			Ball.ball3d.get(0).position.y =	pos.y;
@@ -65,6 +67,7 @@ function Ball(server,world){
 	});
 
 	this.fxIntensityFromBallSpeed =function (){
+		if(Server.playerId!="left") return;
 		this.ballSpeed	= Math.sqrt(this.ballVelX*this.ballVelX + this.ballVelZ*this.ballVelZ);
 		// slow: 0.33 fast: 0.1
 		this.loSpeed	= 0.033;
@@ -76,7 +79,7 @@ function Ball(server,world){
 	};
 
 	this.computeBall=function (){
-		
+		if(Server.playerId!="left") return;
 		//////////////////////////////////////////////////////////////////
 		// compute rebound angle with racket
 		//////////////////////////////////////////////////////////////////

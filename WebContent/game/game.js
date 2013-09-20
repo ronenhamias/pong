@@ -23,9 +23,6 @@ function Game(server,gameSession,currentPlayerId){
 	 * Function called when the ball touch the racket
 	*/
 	players['right'].onContact = players['left'].onContact = function(player, ball3d){
-	
-		
-		
 		fxIntensity	= ball.fxIntensityFromBallSpeed();
 
 		// update emitter's position just before the shoot then shoot
