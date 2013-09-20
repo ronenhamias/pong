@@ -24,6 +24,8 @@ function Game(server,gameSession,currentPlayerId){
 	*/
 	players['right'].onContact = players['left'].onContact = function(player, ball3d){
 	
+		
+		
 		fxIntensity	= ball.fxIntensityFromBallSpeed();
 
 		// update emitter's position just before the shoot then shoot
@@ -47,8 +49,10 @@ function Game(server,gameSession,currentPlayerId){
 	};
 
 	
-
+	var i = 0;
 	world.loop().hook(function(delta, now){
+		
+		
 		// get ball position
 		position	= ball.ball3d.get(0).position;
 		ball.updatePosition(delta);
