@@ -9,7 +9,8 @@ function Server(address){
 			"onOpponentRacketMove" : { callback : {} },
 			"onOpponentBallMove" : { callback : {} },
 			"onSetScore" : { callback : {} },
-			"onLeftPostions" : { callback : {} }
+			"onLeftPostions" : { callback : {} },
+			"status":  { callback : {} }
 	};	
 
 	Server.prototype.on = function (id,callback) {
@@ -23,10 +24,12 @@ function Server(address){
 		'reconnection delay' : 2000,
 		'force new connection' : true,
 	});
-
+	
 	// Add connect listener
 	socket.on('connect', function() {
+		actions["status"].callback("connected to server: " + address);
 		socket.send( joinRequest);
+		actions["status"].callback("Waiting for opponent to join a the table... ");
 	});
 
 	// Add a message listener
@@ -34,11 +37,13 @@ function Server(address){
 		console.log(data);
 		json = JSON.parse(data);
 		if(json.qualifier === "com.pt.openapi.pingpong.game/start"){
+			
 			Server.gameSession =json.data.gameSession;
 			Server.playerId = json.data.playerId;
 			actions["startGame"].callback(Server.gameSession,Server.playerId);
 			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
 			socket.send(msg);
+			actions["status"].callback("player joined the game you are "+ Server.playerId + " player");
 		}else if(json.qualifier=="com.pt.openapi.pingpong.game/racket"){
 			actions["onOpponentRacketMove"].callback(json.data);
 		}else if(json.qualifier=="com.pt.pingpong.game/ball"){

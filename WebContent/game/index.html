@@ -1,9 +1,11 @@
-<!doctype html><title>PongGL</title>
+<!doctype html>
+<title>PongGL</title>
 <!-- google webmaster auth code -->
 <head>
-<!-- google analytic --> 
+<!-- google analytic -->
 <script type="text/javascript">
-</script></head>
+</script>
+</head>
 <script src="vendor/tquery/tquery-bundle.js"></script>
 
 <script src="vendor/tquery/tquery.norequirejs.js"></script>
@@ -61,18 +63,48 @@
 <script src="Arena.js"></script>
 <script src="Walls.js"></script>
 
-<link	href="css/main.css" rel="stylesheet"></link>
+<link href="css/main.css" rel="stylesheet"></link>
+<link rel="stylesheet"
+	href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+<link rel="stylesheet" href="/resources/demos/style.css" />
 
 <body>
-	<div id="scoreLeft"	class="score">0</div>
-	<div id="scoreRight"	class="score">0</div>
-<script>
+	<div id="scoreLeft" class="score">0</div>
+	<div id="scoreRight" class="score">0</div>
+	<div id="progressbar">
+		<div class="progress-label">Loading...</div>
+	</div>
+
+	<script>
     var server = new Server("192.168.2.109:4810");
+    var progressbar = $( "#progressbar" ), progressLabel = $( ".progress-label" );
+    progressbar.progressbar({
+      value: false,
+      change: function() {
+        progressLabel.text( progressbar.progressbar( "value" ) + "%" );
+      },
+      complete: function() {
+        progressLabel.text( "Complete!" );
+      }
+    });
+    
+    server.on("status",function(status){
+    	progressLabel.text( status );
+    });
+    
     server.on("startGame",function(gameSession,playerId){
     	game = new Game(server,gameSession,playerId);
+    	document.getElementById('progressbar').setAttribute("style","visibility:hidden");
     });
-   
     
+    
+  
+    
+     
+        
+       
 	
 </script>
 </body>
