@@ -8,7 +8,8 @@ function Server(address){
 			"startGame" : { callback : {} },
 			"onOpponentRacketMove" : { callback : {} },
 			"onOpponentBallMove" : { callback : {} },
-			"onSetScore" : { callback : {} }
+			"onSetScore" : { callback : {} },
+			"onLeftPostions" : { callback : {} }
 	};	
 
 	Server.prototype.on = function (id,callback) {
@@ -38,13 +39,14 @@ function Server(address){
 			actions["startGame"].callback(Server.gameSession,Server.playerId);
 			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
 			socket.send(msg);
-		}else if(json.qualifier=="com.pt.pingpong.game/racket"){
-			if(json.data.playerId!=Server.prototype.playerId)
-				actions["onOpponentRacketMove"].callback(json.data.playerId,json.data.pos,json.data.index);
+		}else if(json.qualifier=="com.pt.openapi.pingpong.game/racket"){
+			actions["onOpponentRacketMove"].callback(json.data);
 		}else if(json.qualifier=="com.pt.pingpong.game/ball"){
 			actions["onOpponentBallMove"].callback(json.data.playerId,json.data.pos,json.data.index);
 		}else if(json.qualifier=="com.pt.pingpong.game/score"){
 			actions["onSetScore"].callback(json.data.playerId,json.data.left,json.data.right,json.data.index);
+		}else if(json.qualifier=="com.pt.pingpong.game/positions"){
+			actions["onLeftPostions"].callback(json.data.positions,json.data.index);
 		}
 	});
 
@@ -55,15 +57,22 @@ function Server(address){
 	// Add a disconnect listener
 	socket.on('disconnect', function() {});
 
+	Server.prototype.sendPositions= function(positions,i){
+		var data={positions:positions,index:i};
+		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/positions","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+		socket.send(msg);
+	};
 	Server.prototype.setScore = function(id,left,right,i){
 		var data= {playerId: id,left: left ,right:right,index:i};
 		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/score","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
 		socket.send(msg);
 	};
 
-	Server.prototype.moveRacket = function(id,pos,i){
-		var data= {playerId: id ,pos:pos,index:i};
-		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/racket","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+	Server.prototype.moveRacket = function(id,racketId,pos){
+		if(pos==0) return;
+		
+		var data= {gameSession:Server.gameSession, playerId: id ,racketId:racketId,pos:pos};
+		msg = '{"qualifier":"com.pt.openapi.pingpong.game/racket","data":'+JSON.stringify( data)+'}';
 		socket.send(msg);
 		//}
 	};

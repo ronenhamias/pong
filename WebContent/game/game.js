@@ -1,27 +1,27 @@
 
 function Game(server,gameSession,currentPlayerId){
-	
+
 	// constant for the field
 	fieldW	= 4;
 	fieldD	= 1.8;
-	
-    sound = new Sound();
-    world = new World();
+
+	sound = new Sound();
+	world = new World();
 	ball = new Ball(server,world);
 	referee = new Referee(world,ball);
 	walls = new Walls(world,sound,fieldW);
 	arena = new Arena(world);
 	players = new Players(server,world);
-	
+
 	/////////////////////////////////////////////////////////////////////////
 	// init fireworks.js particles
 	smokepuff	= new Fireworks.ComboEmitter.Smokepuff();
 	tQuery(smokepuff.object3D()).addTo(world).scale(1/10);
 	smokepuff.sound().volume(0.3);
-	
+
 	/**
 	 * Function called when the ball touch the racket
-	*/
+	 */
 	players['right'].onContact = players['left'].onContact = function(player, ball3d){
 		fxIntensity	= ball.fxIntensityFromBallSpeed();
 
@@ -31,7 +31,7 @@ function Game(server,gameSession,currentPlayerId){
 		smokepuff.emitter().effect('position').opts.shape.position.copy(playerPos);
 		smokepuff.emitter().intensity(fxIntensity);
 		smokepuff.shoot();
-		
+
 		ball.computeBall();
 		// compute where in the racket the ball is contacting
 		playerPos	= player.object3d.get(0).position;
@@ -45,11 +45,9 @@ function Game(server,gameSession,currentPlayerId){
 		ball.ballVelZ	= Math.sin(ball.ballAngle)*ball.ballSpeed;			
 	};
 
-	
+
 	var i = 0;
 	world.loop().hook(function(delta, now){
-		
-		
 		// get ball position
 		position	= ball.ball3d.get(0).position;
 		ball.updatePosition(delta);
@@ -59,14 +57,14 @@ function Game(server,gameSession,currentPlayerId){
 		if( position.z > +fieldD/2 - ballRadius/2)	wallOnContact(walls['south']);
 		// handle score
 		if( position.x < -fieldW/2 + ballRadius/2)	{
-			  addScore('right');
-		      ball.reset('right');
+			addScore('right');
+			ball.reset('right');
 		};
 		if( position.x > +fieldW/2 - ballRadius/2)	{
-			  addScore('left');
-		      ball.reset('left');
+			addScore('left');
+			ball.reset('left');
 		};
-		
+
 		// bounce the ball if it reach the border
 		if( position.x < -fieldW/2 + ballRadius/2)	ball.ballVelX	*= -1;
 		if( position.x > +fieldW/2 - ballRadius/2)	ball.ballVelX	*= -1;
@@ -105,7 +103,6 @@ function Game(server,gameSession,currentPlayerId){
 				ball.speedIncrease();
 			}
 		});
+
 	});
-	
-	
 };

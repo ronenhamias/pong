@@ -5,7 +5,7 @@ function Players(server,world){
 	racketW	= 0.1;
 	racketD	= 0.5;
 	racketRangeY= 2;
-
+ 
 
 
 	initPlayer = function(playerId){
@@ -91,43 +91,48 @@ function Players(server,world){
 				downR	: keyboard.pressed('down'),
 				leftR   : keyboard.pressed('left'),
 				rightR   : keyboard.pressed('right'),
-				upL	: keyboard.pressed('q')|| keyboard.pressed('e'),
-				downL	: keyboard.pressed('w') || keyboard.pressed('a'),
+				upL	: keyboard.pressed('q'),
+				downL	: keyboard.pressed('w')
 		};
 		var i = index++;
 
+		var isLeft=false;
+		var isRight=false;
+		var posR=0;
+		var posL=0;
+		
 		if( controls.upR ){
-			pos = -delta*speedY;
-			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos,i);
-		}
+			posR = -delta*speedY;
+			players['right'].object3d.translateZ(-delta*speedY);
+			isRight =true;
+		};
 		if( controls.downR ){
-			pos = +delta*speedY;
-			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos,i);
-		}
+			posR = +delta*speedY;
+			players['right'].object3d.translateZ(+delta*speedY);
+			isRight =true;
+		};
 
-		if( controls.leftR ){	
-			pos = +delta*speedY;
-			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos,i);
+		if( controls.leftR ){
+			posR = +delta*speedY;
+			players['right'].object3d.translateZ(+delta*speedY);
+			isRight =true;
 		};
 		if( controls.rightR ){	
-			pos = -delta*speedY;
-			players['right'].object3d.translateZ(pos);
-			server.moveRacket("right",pos,i);
-		}
+			posR = -delta*speedY;
+			players['right'].object3d.translateZ(-delta*speedY);	
+			isRight =true;
+		};
 
 		if( controls.upL )	{
-			pos = -delta*speedY;
-			players['left'].object3d.translateZ(pos);
-			server.moveRacket("left",pos,i);
-		}
+			posL = -delta*speedY;
+			players['left'].object3d.translateZ(-delta*speedY);
+			isLeft =true;
+		};
 		if( controls.downL ){
-			pos = +delta*speedY;
-			players['left'] .object3d.translateZ(pos);
-			server.moveRacket("left",pos,i);
-		}
+			posL = +delta*speedY;
+			players['left'] .object3d.translateZ(+delta*speedY);
+			isLeft =true;
+		};
 		// handle racket limit
 		Object.keys(players).forEach(function(playerId){
 			tMesh	= players[playerId].object3d.get(0);
@@ -136,22 +141,17 @@ function Players(server,world){
 
 			max = Math.min(tMesh.position.z, -fieldD/2 + racketD/2);
 			min = Math.max(tMesh.position.z, -fieldD/2 + racketD/2);
-
-
 		});
-
+		if(isRight && (posR>-1 && 1 >= posR))	server.moveRacket(Server.playerId,"right",posR);
+		if(isLeft && (posL>-1 && 1 >= posL))	server.moveRacket(Server.playerId,"left",posL);
 	});
 	var playerIndex = 0;
-	server.on("onOpponentRacketMove",function(playerId,pos,i){
-		if(playerIndex<i){
-			playerIndex=i;
-		}else return;
-
-		if(playerId=="left")
-			players['left'] .object3d.translateZ(pos);
-		if(playerId=="right"){
-			players['right'] .object3d.translateZ(pos);
-		}
+	server.on("onOpponentRacketMove",function(data){
+//		if(playerIndex<i){
+//			playerIndex=i;
+//		}else return;
+		players[data.racketId].object3d.translateZ(data.pos);
+		
 	});
 	return players;
 }
