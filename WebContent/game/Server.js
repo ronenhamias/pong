@@ -1,9 +1,9 @@
 
 function Server(address){
-
+	
 	Server.prototype.gameSession;
 	Server.prototype.playerId;
-
+	Server.prototype.contextId;
 	actions	= { 
 			"startGame" : { callback : {} },
 			"onOpponentRacketMove" : { callback : {} },
@@ -17,7 +17,8 @@ function Server(address){
 		actions[id].callback = callback;
 	};
 
-	var joinRequest =  '{"qualifier":"com.pt.openapi.pingpong.game/start"}';
+	var joinRequest =  '{"qualifier":"com.pt.openapi.pingpong.game/start","contextId":"' +Server.contextId+ '"}';
+	var createContexRequest =  '{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}';
 
 	var socket = io.connect('http://' + address, {
 		'transports' : [ 'websocket', 'xhr-polling' ],
@@ -27,8 +28,7 @@ function Server(address){
 	
 	// Add connect listener
 	socket.on('connect', function() {
-		actions["status"].callback("connected to server: " + address);
-		socket.send( joinRequest);
+		socket.send(createContexRequest);
 		actions["status"].callback("Waiting for opponent to join a the table... ");
 	});
 
@@ -36,12 +36,17 @@ function Server(address){
 	socket.on('message', function(data) {
 		console.log(data);
 		json = JSON.parse(data);
-		if(json.qualifier === "com.pt.openapi.pingpong.game/start"){
+		
+		if(json.qualifier === "pt.openapi.context/createContextResponse"){
+			actions["status"].callback("connected to server: " + address);
+			Server.contextId = json.data.contextId;
+			socket.send( '{"qualifier":"com.pt.openapi.pingpong.game/start","contextId":"' +Server.contextId+ '"}');
+		}else if(json.qualifier === "com.pt.openapi.pingpong.game/start"){
 			
 			Server.gameSession =json.data.gameSession;
 			Server.playerId = json.data.playerId;
 			actions["startGame"].callback(Server.gameSession,Server.playerId);
-			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
+			msg = '{"qualifier":"pt.openapi.pubsub/subscribe","contextId":"' +Server.contextId+ '","data":{"topic":"pingpong.game.'+Server.gameSession+'"}}';
 			socket.send(msg);
 			actions["status"].callback("player joined the game you are "+ Server.playerId + " player");
 		}else if(json.qualifier=="com.pt.openapi.pingpong.game/racket"){
@@ -64,12 +69,12 @@ function Server(address){
 
 	Server.prototype.sendPositions= function(positions,i){
 		var data={positions:positions,index:i};
-		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/positions","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","contextId":"' +Server.contextId+ '","data":{"qualifier":"com.pt.pingpong.game/positions","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
 		socket.send(msg);
 	};
 	Server.prototype.setScore = function(id,left,right,i){
 		var data= {playerId: id,left: left ,right:right,index:i};
-		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/score","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","contextId":"' +Server.contextId+ '","data":{"qualifier":"com.pt.pingpong.game/score","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
 		socket.send(msg);
 	};
 
@@ -77,14 +82,14 @@ function Server(address){
 		if(pos==0) return;
 		
 		var data= {gameSession:Server.gameSession, playerId: id ,racketId:racketId,pos:pos};
-		msg = '{"qualifier":"com.pt.openapi.pingpong.game/racket","data":'+JSON.stringify( data)+'}';
+		msg = '{"qualifier":"com.pt.openapi.pingpong.game/racket","contextId":"' +Server.contextId+ '","data":'+JSON.stringify( data)+'}';
 		socket.send(msg);
 		//}
 	};
 
 	Server.prototype.moveball = function(Id,pos,i){		
 		var data= {playerId: Id ,pos:pos, index : i};
-		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","data":{"qualifier":"com.pt.pingpong.game/ball","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
+		msg = '{"qualifier":"pt.openapi.pubsub/publish/1.0","contextId":"' +Server.contextId+ '","data":{"qualifier":"com.pt.pingpong.game/ball","topic":"pingpong.game.'+Server.gameSession+'","data":'+JSON.stringify( data)+'}}';
 		socket.send(msg);
 		//}
 	};
